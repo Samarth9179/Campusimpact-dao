@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { Buffer } from 'buffer';
 import {
     RainbowKitProvider,
     getDefaultConfig,
@@ -23,7 +24,7 @@ const config = getDefaultConfig({
 });
 
 if (typeof window !== 'undefined') {
-    window.Buffer = window.Buffer || require('buffer').Buffer;
+    window.Buffer = window.Buffer || Buffer;
 }
 
 export function Providers({ children }: { children: React.ReactNode }) {
