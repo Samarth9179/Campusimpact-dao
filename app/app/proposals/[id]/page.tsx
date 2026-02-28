@@ -97,17 +97,18 @@ export default function ProposalDetailPage() {
                 .eq('proposal_id', params.id)
                 .eq('choice', 'no');
 
-            setVotesYes(yesData?.length || 0);
-            setVotesNo(noData?.length || 0);
+            setVotesYes(yesData ? yesData.length : 0);
+            setVotesNo(noData ? noData.length : 0);
 
-            // Check if this wallet has already voted
-            if (address) {
+            // Check if this wallet has already voted (runs when address loads too)
+            const walletAddress = address;
+            if (walletAddress) {
                 const { data: myVote } = await supabase
                     .from('votes')
                     .select('choice')
                     .eq('proposal_id', params.id)
-                    .eq('voter_address', address)
-                    .single();
+                    .eq('voter_address', walletAddress)
+                    .maybeSingle();
 
                 if (myVote) {
                     setVoted(myVote.choice as 'yes' | 'no');
@@ -116,7 +117,7 @@ export default function ProposalDetailPage() {
         };
 
         checkVote();
-    }, [params.id, address]);
+    }, [params.id, address]); // re-runs when wallet connects
 
     if (loading) {
         return (
