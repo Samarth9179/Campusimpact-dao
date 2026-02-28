@@ -19,13 +19,17 @@ import VoteBar from '@/components/ui/VoteBar';
 import CountdownTimer from '@/components/ui/CountdownTimer';
 import { formatCurrency, formatDate, getVotePercentage, getQuorumPercentage, staggerContainer, fadeInUp } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useAccount } from 'wagmi';
 
 export default function ProposalDetailPage() {
     const params = useParams();
+    const { address } = useAccount();
     const [proposal, setProposal] = useState<Proposal | null>(null);
     const [loading, setLoading] = useState(true);
     const [voted, setVoted] = useState<'yes' | 'no' | null>(null);
     const [voting, setVoting] = useState(false);
+    const [votesYes, setVotesYes] = useState(0);
+    const [votesNo, setVotesNo] = useState(0);
 
     useEffect(() => {
         const fetchProposal = async () => {
@@ -75,6 +79,45 @@ export default function ProposalDetailPage() {
         fetchProposal();
     }, [params.id]);
 
+    // Check if the current wallet address already voted, and fetch live vote counts
+    useEffect(() => {
+        if (!params.id) return;
+
+        const checkVote = async () => {
+            // Fetch live vote counts
+            const { data: yesData } = await supabase
+                .from('votes')
+                .select('id', { count: 'exact' })
+                .eq('proposal_id', params.id)
+                .eq('choice', 'yes');
+
+            const { data: noData } = await supabase
+                .from('votes')
+                .select('id', { count: 'exact' })
+                .eq('proposal_id', params.id)
+                .eq('choice', 'no');
+
+            setVotesYes(yesData?.length || 0);
+            setVotesNo(noData?.length || 0);
+
+            // Check if this wallet has already voted
+            if (address) {
+                const { data: myVote } = await supabase
+                    .from('votes')
+                    .select('choice')
+                    .eq('proposal_id', params.id)
+                    .eq('voter_address', address)
+                    .single();
+
+                if (myVote) {
+                    setVoted(myVote.choice as 'yes' | 'no');
+                }
+            }
+        };
+
+        checkVote();
+    }, [params.id, address]);
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-96">
@@ -93,17 +136,46 @@ export default function ProposalDetailPage() {
         );
     }
 
-    getVotePercentage(proposal.votesYes, proposal.votesNo);
-    const quorumPct = getQuorumPercentage(proposal.totalVoters, proposal.quorumRequired);
+    getVotePercentage(votesYes, votesNo);
+    const quorumPct = getQuorumPercentage(votesYes + votesNo, proposal.quorumRequired);
     const isActive = proposal.status === 'active';
     const isPassed = proposal.status === 'passed';
     const completedMilestones = proposal.milestones.filter(m => m.completed).length;
 
     const handleVote = async (choice: 'yes' | 'no') => {
+        if (!address) {
+            alert('Please connect your wallet to vote!');
+            return;
+        }
         setVoting(true);
-        await new Promise(r => setTimeout(r, 1500));
-        setVoted(choice);
-        setVoting(false);
+        try {
+            const { error } = await supabase
+                .from('votes')
+                .insert([{
+                    proposal_id: params.id,
+                    voter_address: address,
+                    choice: choice
+                }]);
+
+            if (error) {
+                // Unique constraint violation means they already voted
+                if (error.code === '23505') {
+                    alert('You have already voted on this proposal!');
+                } else {
+                    throw error;
+                }
+            } else {
+                setVoted(choice);
+                // Update live counts
+                if (choice === 'yes') setVotesYes(v => v + 1);
+                else setVotesNo(v => v + 1);
+            }
+        } catch (err) {
+            console.error('Vote error:', err);
+            alert('Failed to submit vote. Please try again.');
+        } finally {
+            setVoting(false);
+        }
     };
 
     return (
@@ -247,8 +319,8 @@ export default function ProposalDetailPage() {
                                     <CountdownTimer endDate={proposal.endDate} />
 
                                     <VoteBar
-                                        yesVotes={proposal.votesYes}
-                                        noVotes={proposal.votesNo}
+                                        yesVotes={votesYes}
+                                        noVotes={votesNo}
                                         height="md"
                                         showLabels
                                         showCounts
@@ -294,7 +366,7 @@ export default function ProposalDetailPage() {
                                 <div className="text-center py-4">
                                     <StatusBadge status={proposal.status} className="mb-3" />
                                     <p className="text-body-sm text-text-muted">Voting has ended</p>
-                                    <VoteBar yesVotes={proposal.votesYes} noVotes={proposal.votesNo} height="md" showLabels showCounts className="mt-4" />
+                                    <VoteBar yesVotes={votesYes} noVotes={votesNo} height="md" showLabels showCounts className="mt-4" />
                                 </div>
                             )}
 
