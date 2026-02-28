@@ -2,12 +2,13 @@
 
 > **Decentralized Autonomous Organization for funding student innovation across Indian Universities.**
 
-CampusImpact DAO is a Web3 platform where students submit project proposals, the community votes using governance tokens (CIMP), and funds are automatically disbursed via smart contracts — no middlemen, no bureaucracy.
+🌐 **Live Demo: [campusimpact-dao-faly.vercel.app](https://campusimpact-dao-faly.vercel.app)**
 
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-Database-green?logo=supabase)
 ![Polygon](https://img.shields.io/badge/Polygon-Network-purple?logo=polygon)
+![Live](https://img.shields.io/badge/Live-campusimpact--dao--faly.vercel.app-brightgreen)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ---
@@ -95,6 +96,19 @@ create table proposals (
 alter table proposals enable row level security;
 create policy "allow_all_inserts" on proposals for insert with check (true);
 create policy "allow_all_selects" on proposals for select using (true);
+
+-- Also create the votes table
+create table if not exists votes (
+  id uuid default gen_random_uuid() primary key,
+  proposal_id text not null,
+  voter_address text not null,
+  choice text not null check (choice in ('yes', 'no')),
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique (proposal_id, voter_address)
+);
+alter table votes enable row level security;
+create policy "allow_all_inserts_votes" on votes for insert with check (true);
+create policy "allow_all_selects_votes" on votes for select using (true);
 ```
 
 ---
