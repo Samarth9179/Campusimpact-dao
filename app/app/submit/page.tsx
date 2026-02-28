@@ -104,7 +104,7 @@ export default function SubmitProposalPage() {
                         duration: parseInt(form.duration) || 1,
                         milestones: form.milestones,
                         proposer_address: address,
-                        status: 'pending'
+                        status: 'active'
                     }
                 ]);
 
