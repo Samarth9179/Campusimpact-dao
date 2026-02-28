@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Users, TrendingUp } from 'lucide-react';
+import { Clock, Users, TrendingUp, CheckCircle } from 'lucide-react';
 import { Proposal } from '@/types';
 import { formatCurrency, formatTimeLeft, getVotePercentage } from '@/lib/utils';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -10,6 +11,8 @@ import VoteBar from '@/components/ui/VoteBar';
 import { PrimaryButton, SecondaryButton } from '@/components/ui/Button';
 import { fadeInUp } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
+import { useAccount } from 'wagmi';
 
 interface ProposalCardProps {
     proposal: Proposal;
@@ -20,6 +23,46 @@ interface ProposalCardProps {
 export default function ProposalCard({ proposal, index = 0, compact = false }: ProposalCardProps) {
     getVotePercentage(proposal.votesYes, proposal.votesNo);
     const isVotable = proposal.status === 'active';
+    const { address } = useAccount();
+    const [hasVoted, setHasVoted] = useState<'yes' | 'no' | null>(null);
+    const [votesYes, setVotesYes] = useState(proposal.votesYes || 0);
+    const [votesNo, setVotesNo] = useState(proposal.votesNo || 0);
+
+    useEffect(() => {
+        if (!proposal.id || !isVotable) return;
+
+        const checkVote = async () => {
+            // Fetch live vote counts for this card
+            const { data: yesData } = await supabase
+                .from('votes')
+                .select('id')
+                .eq('proposal_id', proposal.id)
+                .eq('choice', 'yes');
+
+            const { data: noData } = await supabase
+                .from('votes')
+                .select('id')
+                .eq('proposal_id', proposal.id)
+                .eq('choice', 'no');
+
+            setVotesYes(yesData?.length || proposal.votesYes || 0);
+            setVotesNo(noData?.length || proposal.votesNo || 0);
+
+            // Check if this wallet already voted
+            if (address) {
+                const { data: myVote } = await supabase
+                    .from('votes')
+                    .select('choice')
+                    .eq('proposal_id', proposal.id)
+                    .eq('voter_address', address)
+                    .single();
+
+                if (myVote) setHasVoted(myVote.choice as 'yes' | 'no');
+            }
+        };
+
+        checkVote();
+    }, [proposal.id, address, isVotable, proposal.votesYes, proposal.votesNo]);
 
     return (
         <motion.div
@@ -41,6 +84,18 @@ export default function ProposalCard({ proposal, index = 0, compact = false }: P
                         <span className="text-caption text-text-muted bg-white/5 px-2 py-0.5 rounded-full">
                             {proposal.category}
                         </span>
+                        {/* Show voted badge on the card itself */}
+                        {hasVoted && (
+                            <span className={cn(
+                                'inline-flex items-center gap-1 text-caption font-semibold px-2 py-0.5 rounded-full',
+                                hasVoted === 'yes'
+                                    ? 'bg-success/15 text-success border border-success/30'
+                                    : 'bg-danger/15 text-danger border border-danger/30'
+                            )}>
+                                <CheckCircle className="w-3 h-3" />
+                                Voted {hasVoted.toUpperCase()}
+                            </span>
+                        )}
                     </div>
                     <h3 className="text-heading-md font-semibold text-text-primary leading-snug group-hover:text-white transition-colors line-clamp-2">
                         {proposal.title}
@@ -82,7 +137,7 @@ export default function ProposalCard({ proposal, index = 0, compact = false }: P
                         <Users className="w-3 h-3" /> Voters
                     </span>
                     <span className="text-body-sm font-semibold text-text-primary">
-                        {proposal.totalVoters.toLocaleString()}
+                        {(votesYes + votesNo).toLocaleString()}
                     </span>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -102,8 +157,8 @@ export default function ProposalCard({ proposal, index = 0, compact = false }: P
             {(proposal.status !== 'pending') && (
                 <div>
                     <VoteBar
-                        yesVotes={proposal.votesYes}
-                        noVotes={proposal.votesNo}
+                        yesVotes={votesYes}
+                        noVotes={votesNo}
                         height="sm"
                         showLabels
                     />
@@ -132,12 +187,25 @@ export default function ProposalCard({ proposal, index = 0, compact = false }: P
                     </SecondaryButton>
                 </Link>
                 {isVotable && (
-                    <Link href={`/app/proposals/${proposal.id}#vote`}>
-                        <PrimaryButton className="text-body-sm py-2.5 gap-1.5">
-                            Vote Now
-                            <TrendingUp className="w-3.5 h-3.5" />
-                        </PrimaryButton>
-                    </Link>
+                    hasVoted ? (
+                        // Already voted — show a disabled "Voted" button
+                        <div className={cn(
+                            'inline-flex items-center gap-1.5 text-body-sm font-semibold px-4 py-2.5 rounded-xl border',
+                            hasVoted === 'yes'
+                                ? 'bg-success/10 text-success border-success/30'
+                                : 'bg-danger/10 text-danger border-danger/30'
+                        )}>
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            Voted {hasVoted.toUpperCase()}
+                        </div>
+                    ) : (
+                        <Link href={`/app/proposals/${proposal.id}#vote`}>
+                            <PrimaryButton className="text-body-sm py-2.5 gap-1.5">
+                                Vote Now
+                                <TrendingUp className="w-3.5 h-3.5" />
+                            </PrimaryButton>
+                        </Link>
+                    )
                 )}
             </div>
         </motion.div>
