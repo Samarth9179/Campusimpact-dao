@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Zap, Menu, X, Bell
+    Zap, Menu, X, Bell, LogOut
 } from 'lucide-react';
 import { useAccount } from 'wagmi';
-import { SecondaryButton } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { supabase } from '@/lib/supabase';
 
 const navLinks = [
     { label: 'Dashboard', href: '/app' },
@@ -21,10 +21,27 @@ const navLinks = [
 
 export default function Navbar() {
     const pathname = usePathname();
+    const router = useRouter();
     const { isConnected } = useAccount();
     const [scrolled, setScrolled] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [userEmail, setUserEmail] = useState<string | null>(null);
     const isLanding = pathname === '/';
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUserEmail(session?.user?.email ?? null);
+        });
+        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUserEmail(session?.user?.email ?? null);
+        });
+        return () => listener.subscription.unsubscribe();
+    }, []);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        router.push('/auth/login');
+    };
 
     useEffect(() => {
         const handler = () => setScrolled(window.scrollY > 20);
@@ -96,11 +113,27 @@ export default function Navbar() {
                         showBalance={{ smallScreen: false, largeScreen: true }}
                     />
 
+                    {/* Logged-in user chip + logout */}
+                    {userEmail && (
+                        <div className="hidden sm:flex items-center gap-2">
+                            <span className="text-xs text-gray-400 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg max-w-[140px] truncate">
+                                {userEmail}
+                            </span>
+                            <button
+                                onClick={handleLogout}
+                                title="Sign out"
+                                className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                            >
+                                <LogOut className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
+
                     {isLanding && (
-                        <Link href="/app">
-                            <SecondaryButton className="text-body-sm px-5 py-2.5 hidden sm:inline-flex">
-                                Launch App
-                            </SecondaryButton>
+                        <Link href="/app"
+                            className="hidden sm:inline-flex px-5 py-2.5 border border-white/20 text-white rounded-xl text-sm font-medium hover:bg-white/5 transition-colors"
+                        >
+                            Launch App
                         </Link>
                     )}
 
