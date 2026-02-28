@@ -41,6 +41,13 @@ export default function ActivityPage() {
             setLoading(true);
             const items: ActivityItem[] = [];
 
+            // === DIRECT DEBUG: count rows in votes table ===
+            const { count, error: countErr } = await supabase
+                .from('votes')
+                .select('*', { count: 'exact', head: true });
+            console.log('[Activity Debug] votes table row count:', count, 'error:', countErr);
+
+
             // Step 1: Fetch all proposals to build a lookup map (id -> title)
             const { data: proposals, error: propError } = await supabase
                 .from('proposals')
