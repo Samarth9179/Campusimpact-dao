@@ -25,8 +25,8 @@ export default function ProposalCard({ proposal, index = 0, compact = false }: P
     const isVotable = proposal.status === 'active';
     const { address } = useAccount();
     const [hasVoted, setHasVoted] = useState<'yes' | 'no' | null>(null);
-    const [votesYes, setVotesYes] = useState(proposal.votesYes || 0);
-    const [votesNo, setVotesNo] = useState(proposal.votesNo || 0);
+    const [votesYes, setVotesYes] = useState(0);
+    const [votesNo, setVotesNo] = useState(0);
 
     useEffect(() => {
         if (!proposal.id || !isVotable) return;
@@ -45,8 +45,9 @@ export default function ProposalCard({ proposal, index = 0, compact = false }: P
                 .eq('proposal_id', proposal.id)
                 .eq('choice', 'no');
 
-            setVotesYes(yesData?.length || proposal.votesYes || 0);
-            setVotesNo(noData?.length || proposal.votesNo || 0);
+            // Use ?? 0 so that 0 real votes stays 0 (not falling back to mock data)
+            setVotesYes(yesData ? yesData.length : 0);
+            setVotesNo(noData ? noData.length : 0);
 
             // Check if this wallet already voted
             if (address) {
