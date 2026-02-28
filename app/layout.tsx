@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/layout/Navbar';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -27,10 +26,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${inter.variable} antialiased bg-background text-text-primary`}>
         <Providers>
-          <Navbar />
           <main>{children}</main>
         </Providers>
       </body>
     </html>
   );
 }
+

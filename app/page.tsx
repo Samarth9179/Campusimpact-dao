@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { PrimaryButton, SecondaryButton } from '@/components/ui/Button';
 import AnimatedCounter from '@/components/ui/AnimatedCounter';
+import Navbar from '@/components/layout/Navbar';
+
 import GlassCard from '@/components/ui/GlassCard';
 import { landingStats, mockProposals } from '@/lib/mockData';
 import { staggerContainer, fadeInUp, scaleIn } from '@/lib/utils';
@@ -90,6 +92,7 @@ const solutionSteps = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen mesh-bg">
+      <Navbar />
       {/* Hero */}
       <section className="relative min-h-screen flex items-center pt-20">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
