@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -11,12 +13,34 @@ import { PrimaryButton, SecondaryButton } from '@/components/ui/Button';
 import ProposalCard from '@/components/proposals/ProposalCard';
 import { dashboardStats, mockProposals } from '@/lib/mockData';
 import { staggerContainer, fadeInUp, scaleIn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 
 const iconMap: Record<string, React.ElementType> = {
     Wallet, FileText, Zap, Trophy,
 };
 
 export default function DashboardPage() {
+    const router = useRouter();
+    const [authChecked, setAuthChecked] = useState(false);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!session) {
+                router.push('/auth/login');
+            } else {
+                setAuthChecked(true);
+            }
+        });
+    }, [router]);
+
+    if (!authChecked) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="w-8 h-8 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+            </div>
+        );
+    }
+
     const activeProposals = mockProposals.filter(p => p.status === 'active');
 
     return (
