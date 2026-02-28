@@ -141,7 +141,7 @@ export default function ActivityPage() {
                                         </div>
                                     )
                                 ) : (
-                                    votes.map((vote, i) => {
+                                    votes.map((vote) => {
                                         const isYes = vote.choice === 'yes';
                                         const title = proposalTitles[vote.proposal_id] || `Proposal #${vote.proposal_id.substring(0, 8)}`;
                                         return (
@@ -161,7 +161,7 @@ export default function ActivityPage() {
                                                             <span className={cn('font-bold', isYes ? 'text-success' : 'text-danger')}>
                                                                 {isYes ? '✓ YES' : '✗ NO'}
                                                             </span>
-                                                            {' '}vote on <span className="text-text-primary">"{title}"</span>
+                                                            {' '}vote on <span className="text-text-primary">&ldquo;{title}&rdquo;</span>
                                                         </p>
                                                         <span className="text-caption text-text-muted flex items-center gap-1 flex-shrink-0">
                                                             <Clock className="w-3 h-3" /> {timeAgo(vote.created_at)}
@@ -195,7 +195,7 @@ export default function ActivityPage() {
                                             <div className="flex-1 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.05] transition-colors">
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                                                     <p className="text-body-sm text-text-primary font-medium">
-                                                        📄 New proposal: <span className="text-text-primary">"{p.title}"</span>
+                                                        📄 New proposal: <span className="text-text-primary">&ldquo;{p.title}&rdquo;</span>
                                                     </p>
                                                     <span className="text-caption text-text-muted flex items-center gap-1 flex-shrink-0">
                                                         <Clock className="w-3 h-3" /> {timeAgo(p.created_at)}
