@@ -41,20 +41,34 @@ export default function ActivityPage() {
             setLoading(true);
             const items: ActivityItem[] = [];
 
-            // Fetch real votes from Supabase
+            // Step 1: Fetch all proposals to build a lookup map (id -> title)
+            const { data: proposals } = await supabase
+                .from('proposals')
+                .select('id, title, status, created_at')
+                .order('created_at', { ascending: false })
+                .limit(50);
+
+            const proposalMap: Record<string, string> = {};
+            if (proposals) {
+                for (const p of proposals) {
+                    proposalMap[p.id] = p.title;
+                }
+            }
+
+            // Step 2: Fetch all votes — manually look up proposal title from the map
             const { data: votes } = await supabase
                 .from('votes')
-                .select('*, proposals(title)')
+                .select('id, proposal_id, voter_address, choice, created_at')
                 .order('created_at', { ascending: false })
-                .limit(20);
+                .limit(30);
 
             if (votes) {
                 for (const vote of votes) {
-                    const proposalTitle = vote.proposals?.title || 'Unknown Proposal';
+                    const proposalTitle = proposalMap[vote.proposal_id] || `Proposal #${String(vote.proposal_id).substring(0, 8)}`;
                     const isYes = vote.choice === 'yes';
                     items.push({
                         type: 'vote',
-                        action: `Voted ${isYes ? 'YES' : 'NO'} on ${proposalTitle}`,
+                        action: `Voted ${isYes ? 'YES ✓' : 'NO ✗'} on "${proposalTitle}"`,
                         time: timeAgo(new Date(vote.created_at)),
                         icon: isYes ? TrendingUp : TrendingDown,
                         color: isYes ? 'text-success' : 'text-danger',
@@ -63,13 +77,6 @@ export default function ActivityPage() {
                     });
                 }
             }
-
-            // Fetch real proposals from Supabase
-            const { data: proposals } = await supabase
-                .from('proposals')
-                .select('id, title, status, created_at')
-                .order('created_at', { ascending: false })
-                .limit(20);
 
             if (proposals) {
                 for (const p of proposals) {
