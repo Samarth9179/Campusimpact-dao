@@ -42,11 +42,13 @@ export default function ActivityPage() {
             const items: ActivityItem[] = [];
 
             // Step 1: Fetch all proposals to build a lookup map (id -> title)
-            const { data: proposals } = await supabase
+            const { data: proposals, error: propError } = await supabase
                 .from('proposals')
                 .select('id, title, status, created_at')
                 .order('created_at', { ascending: false })
                 .limit(50);
+
+            if (propError) console.error('Proposals fetch error:', propError);
 
             const proposalMap: Record<string, string> = {};
             if (proposals) {
@@ -56,13 +58,28 @@ export default function ActivityPage() {
             }
 
             // Step 2: Fetch all votes — manually look up proposal title from the map
-            const { data: votes } = await supabase
+            const { data: votes, error: votesError } = await supabase
                 .from('votes')
                 .select('id, proposal_id, voter_address, choice, created_at')
                 .order('created_at', { ascending: false })
                 .limit(30);
 
-            if (votes) {
+            console.log('Votes fetched:', votes, 'Error:', votesError);
+
+            if (votesError) {
+                // votes table might not exist yet — show a helpful item
+                items.push({
+                    type: 'vote',
+                    action: `⚠️ votes table not found in Supabase. Run the SQL from the README to create it.`,
+                    time: 'now',
+                    icon: TrendingUp,
+                    color: 'text-warning',
+                    bg: 'bg-warning/10 border-warning/20',
+                    timestamp: new Date(),
+                });
+            }
+
+            if (votes && votes.length > 0) {
                 for (const vote of votes) {
                     const proposalTitle = proposalMap[vote.proposal_id] || `Proposal #${String(vote.proposal_id).substring(0, 8)}`;
                     const isYes = vote.choice === 'yes';
