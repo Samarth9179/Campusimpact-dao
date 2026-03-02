@@ -91,7 +91,7 @@ const solutionSteps = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen mesh-bg">
+    <div className="min-h-screen mesh-bg overflow-hidden">
       <Navbar />
       {/* Hero */}
       <section className="relative min-h-screen flex items-center pt-20">

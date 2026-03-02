@@ -28,7 +28,7 @@ export default function Sidebar({ className }: SidebarProps) {
     return (
         <aside
             className={cn(
-                'fixed left-0 top-16 bottom-0 w-64 bg-background border-r border-white/[0.06] flex flex-col py-6 overflow-y-auto no-scrollbar z-40',
+                'fixed left-0 top-16 bottom-0 w-64 bg-background border-r border-white/[0.06] hidden md:flex flex-col py-6 overflow-y-auto no-scrollbar z-40',
                 className
             )}
         >
