@@ -76,17 +76,10 @@ function HeroCard() {
   );
 }
 
-const problems = [
-  { icon: AlertCircle, title: 'Opaque Selection', description: 'Traditional committees fund projects through closed-door decisions with no audit trail, enabling bias and nepotism.', color: 'text-danger', bg: 'bg-danger/10 border-danger/20' },
-  { icon: Lock, title: 'No Accountability', description: 'Funded teams face zero milestone tracking. Money disappears into projects with no outcome reporting.', color: 'text-warning', bg: 'bg-warning/10 border-warning/20' },
-  { icon: Eye, title: 'Zero Transparency', description: "Students have no visibility into funding decisions. A ₹50L fund might fund a dean's nephew's idea over a breakthrough innovation.", color: 'text-accent-blue', bg: 'bg-accent-blue/10 border-accent-blue/20' },
-];
-
-const solutionSteps = [
-  { number: '01', label: 'Submit', desc: 'Teams submit proposals with milestones & funding breakdown on-chain via IPFS' },
-  { number: '02', label: 'Vote', desc: 'Token holders vote transparently. Quorum required. Results immutable on-chain.' },
-  { number: '03', label: 'Fund', desc: 'Smart contract auto-executes treasury disbursement upon vote passing quorum.' },
-  { number: '04', label: 'Track', desc: 'Milestone completion unlocks next tranche. Full audit trail. Public forever.' },
+const coreValues = [
+  { number: '01', label: 'Mission', desc: 'To democratize access to innovation funding for students across India through transparent, on-chain governance.' },
+  { number: '02', label: 'Vision', desc: 'To build a future where every student innovation has a clear path to impact, fueled by a decentralized meritocracy.' },
+  { number: '03', label: 'Values', desc: 'We are guided by radical transparency, community-first decision making, and the unyielding power of decentralized trust.' },
 ];
 
 export default function LandingPage() {
@@ -146,7 +139,7 @@ export default function LandingPage() {
       </section>
 
       {/* Impact Numbers */}
-      <section id="impact" className="py-24 border-t border-white/[0.06]">
+      <section id="impact" className="py-24 border-t border-white/[0.06] scroll-mt-16">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {landingStats.map((stat) => (
@@ -164,54 +157,93 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Problem */}
-      <section id="problem" className="py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <span className="badge-rejected mb-4 inline-flex">The Problem</span>
-            <h2 className="text-display-md font-bold text-text-primary mb-4 text-balance">
-              Innovation dies without <span className="gradient-text">transparent funding.</span>
-            </h2>
-            <p className="text-body-lg text-text-secondary max-w-2xl mx-auto">
-              India&apos;s universities generate brilliant ideas, but broken funding systems kill 90% of them before they ever get a chance.
-            </p>
-          </motion.div>
-          <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid md:grid-cols-3 gap-6">
-            {problems.map(({ icon: Icon, title, description, color, bg }) => (
-              <motion.div key={title} variants={fadeInUp}>
-                <GlassCard className="p-8 h-full" hover>
-                  <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center mb-6 ${bg}`}>
-                    <Icon className={`w-6 h-6 ${color}`} />
+      {/* About Us */}
+      <section id="about" className="pt-8 pb-40 border-t border-white/[0.06] relative overflow-hidden scroll-mt-16">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-6 relative">
+          <div className="grid lg:grid-cols-2 gap-24 items-center">
+            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="space-y-12">
+              <div>
+                <span className="badge-active mb-8 inline-flex px-8 py-3 text-heading-md border-2">AboutUs</span>
+                <h2 className="text-display-xl font-bold text-text-primary mb-10 leading-tight">
+                  Empowering the Next Generation of <span className="gradient-text">Innovators</span>
+                </h2>
+                <p className="text-body-lg text-text-secondary leading-relaxed max-w-xl">
+                  CampusImpact DAO is a decentralized platform dedicated to bridging the gap between brilliant student ideas and the funding they deserve. We believe that innovation shouldn&apos;t be held back by traditional gatekeepers or opaque processes.
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-8">
+                {[
+                  { icon: Shield, title: 'Secure & Fair', desc: 'On-chain governance ensures every vote is counted and every fund is tracked.' },
+                  { icon: Globe, title: 'Open Access', desc: 'Any student from any participating university can submit their breakthrough ideas.' },
+                  { icon: Users, title: 'Community Led', desc: 'Decisions are made by token holders, fostering a true meritocracy on campus.' },
+                  { icon: Zap, title: 'Rapid Funding', desc: 'Smart contracts automate disbursement, getting funds to teams faster than ever.' },
+                ].map(({ icon: Icon, title, desc }) => (
+                  <div key={title} className="space-y-3">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-primary-light" />
+                      </div>
+                      <h4 className="text-heading-sm font-bold text-text-primary">{title}</h4>
+                    </div>
+                    <p className="text-body-md text-text-muted leading-relaxed">{desc}</p>
                   </div>
-                  <h3 className="text-heading-lg font-semibold text-text-primary mb-3">{title}</h3>
-                  <p className="text-body-md text-text-secondary leading-relaxed">{description}</p>
-                </GlassCard>
-              </motion.div>
-            ))}
-          </motion.div>
+                ))}
+              </div>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="relative group">
+              <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-purple-600/20 rounded-[2.5rem] blur-2xl group-hover:blur-3xl transition-all duration-500 opacity-60" />
+              <GlassCard className="p-10 relative overflow-hidden aspect-video flex flex-col justify-center items-center text-center">
+                <div className="absolute top-0 right-0 p-6">
+                  <div className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center backdrop-blur-sm">
+                    <TrendingUp className="w-7 h-7 text-primary-light" />
+                  </div>
+                </div>
+                <Users className="w-20 h-20 text-primary-light mb-8 opacity-80" />
+                <h3 className="text-display-sm font-bold text-text-primary mb-4">Join 4,000+ Students</h3>
+                <p className="text-body-lg text-text-secondary max-w-sm">
+                  Already making an impact across 12+ premier Indian universities. Your innovation starts here.
+                </p>
+                <div className="mt-10 flex gap-6">
+                  <div className="flex -space-x-4">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="w-12 h-12 rounded-full border-2 border-background bg-zinc-800 flex items-center justify-center text-sm font-bold text-white">
+                        {String.fromCharCode(64 + i)}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-left">
+                    <p className="text-body-md font-bold text-text-primary">Active Community</p>
+                    <p className="text-caption text-text-muted">Growing every day</p>
+                  </div>
+                </div>
+              </GlassCard>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* Solution */}
-      <section id="solution" className="py-24 border-t border-white/[0.06]">
+
+      {/* Mission, Vision, Values */}
+      <section id="values" className="py-24 border-t border-white/[0.06] scroll-mt-16">
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-16">
-            <span className="badge-active mb-4 inline-flex">The Solution</span>
+            <span className="badge-active mb-4 inline-flex">Our Purpose</span>
             <h2 className="text-display-md font-bold text-text-primary mb-4 text-balance">
-              A governance layer that puts <span className="gradient-text">merit first.</span>
+              Our Mission, <span className="gradient-text">Vision & Values</span>
             </h2>
-            <p className="text-body-lg text-text-secondary max-w-2xl mx-auto">Every rupee is traceable. Every vote is immutable. Every project milestone is on-chain.</p>
+            <p className="text-body-lg text-text-secondary max-w-2xl mx-auto">Driving the future of student innovation through decentralized trust and community empowerment.</p>
           </motion.div>
           <div className="relative">
             <div className="hidden lg:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-            <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-              {solutionSteps.map(({ number, label, desc }) => (
+            <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {coreValues.map(({ number, label, desc }) => (
                 <motion.div key={number} variants={fadeInUp} className="text-center relative">
-                  <div className="w-20 h-20 rounded-2xl bg-primary/10 border border-primary/20 flex flex-col items-center justify-center mx-auto mb-6 relative z-10">
-                    <span className="text-caption text-primary-light font-mono">{number}</span>
-                    <span className="text-heading-md font-bold text-primary-light">{label}</span>
+                  <div className="w-24 h-24 rounded-2xl bg-primary/10 border border-primary/20 flex flex-col items-center justify-center mx-auto mb-6 relative z-10">
+                    <span className="text-caption text-primary-light font-mono mb-1">{number}</span>
+                    <span className="text-heading-md font-bold text-primary-light leading-none">{label}</span>
                   </div>
-                  <p className="text-body-sm text-text-secondary leading-relaxed">{desc}</p>
+                  <p className="text-body-md text-text-secondary leading-relaxed max-w-sm mx-auto">{desc}</p>
                 </motion.div>
               ))}
             </motion.div>

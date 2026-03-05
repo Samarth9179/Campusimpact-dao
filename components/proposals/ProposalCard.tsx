@@ -27,6 +27,11 @@ export default function ProposalCard({ proposal, index = 0, compact = false }: P
     const [hasVoted, setHasVoted] = useState<'yes' | 'no' | null>(null);
     const [votesYes, setVotesYes] = useState(0);
     const [votesNo, setVotesNo] = useState(0);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         if (!proposal.id || !isVotable) return;
@@ -145,11 +150,14 @@ export default function ProposalCard({ proposal, index = 0, compact = false }: P
                     <span className="text-caption text-text-muted uppercase tracking-wider flex items-center gap-1">
                         <Clock className="w-3 h-3" /> Ends
                     </span>
-                    <span className={cn(
-                        'text-body-sm font-semibold',
-                        isVotable ? 'text-warning' : 'text-text-muted'
-                    )}>
-                        {formatTimeLeft(proposal.endDate)}
+                    <span
+                        className={cn(
+                            'text-body-sm font-semibold',
+                            isVotable ? 'text-warning' : 'text-text-muted'
+                        )}
+                        suppressHydrationWarning
+                    >
+                        {mounted ? formatTimeLeft(proposal.endDate) : '---'}
                     </span>
                 </div>
             </div>
