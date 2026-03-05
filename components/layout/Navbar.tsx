@@ -52,7 +52,10 @@ export default function Navbar() {
     return (
         <header
             className={cn(
-                'fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background/90 backdrop-blur-xl border-b border-white/[0.06] shadow-elevation-2'
+                'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+                scrolled || !isLanding
+                    ? 'bg-background/90 backdrop-blur-xl border-b border-white/[0.06] shadow-elevation-2'
+                    : 'bg-transparent'
             )}
         >
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -73,7 +76,8 @@ export default function Navbar() {
                     {isLanding
                         ? (
                             <>
-                                <a href="#about" className="px-4 py-2 text-body-sm text-text-secondary hover:text-text-primary transition-colors rounded-lg hover:bg-white/5">AboutUs</a>
+                                <a href="#services" className="px-4 py-2 text-body-sm text-text-secondary hover:text-text-primary transition-colors rounded-lg hover:bg-white/5">AboutUs</a>
+                                <a href="#solution" className="px-4 py-2 text-body-sm text-text-secondary hover:text-text-primary transition-colors rounded-lg hover:bg-white/5">Solution</a>
                                 <a href="#impact" className="px-4 py-2 text-body-sm text-text-secondary hover:text-text-primary transition-colors rounded-lg hover:bg-white/5">Impact</a>
                             </>
                         )

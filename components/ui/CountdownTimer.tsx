@@ -34,32 +34,14 @@ function getTimeLeft(endDate: string): TimeLeft {
 }
 
 export default function CountdownTimer({ endDate, className, compact = false }: CountdownTimerProps) {
-    const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0, ended: false });
-    const [mounted, setMounted] = useState(false);
+    const [timeLeft, setTimeLeft] = useState<TimeLeft>(() => getTimeLeft(endDate));
 
     useEffect(() => {
-        setMounted(true);
-        setTimeLeft(getTimeLeft(endDate));
         const interval = setInterval(() => {
             setTimeLeft(getTimeLeft(endDate));
         }, 1000);
         return () => clearInterval(interval);
     }, [endDate]);
-
-    if (!mounted) {
-        return (
-            <div className={cn('flex gap-3 invisible', className)}>
-                {/* Placeholder to reserve space and prevent layout shift */}
-                {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="flex flex-col items-center">
-                        <div className="glass-card px-3 py-2 min-w-[52px] text-center">
-                            <span className="text-heading-md font-bold text-text-primary font-mono">00</span>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    }
 
     if (timeLeft.ended) {
         return (
